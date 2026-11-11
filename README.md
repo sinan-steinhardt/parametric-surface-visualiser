@@ -13,6 +13,7 @@ y(t,l) = (2+cos(l))*sin(t)
 z(t,l) = sin(l)*cos(t/2)
 
 t ∈ [0,6.283185]
+
 l ∈ [0,6.283185]
 
 <p align="center">
@@ -51,4 +52,4 @@ cmake --build build -j$(nproc)
 
 ## License
 
-This project is licensed under the MIT License.
+MIT License
