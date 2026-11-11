@@ -53,7 +53,3 @@ cmake --build build -j$(nproc)
 
 ./build/parametric-surface-visualiser
 ```
-
-## License
-
-MIT License
