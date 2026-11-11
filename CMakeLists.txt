@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 
-project(Parametric3DVisualiser
+project(ParametricSurfaceVisualiser
     VERSION 1.0
     LANGUAGES CXX
 )
@@ -18,15 +18,15 @@ pkg_check_modules(RAYLIB REQUIRED IMPORTED_TARGET raylib)
 find_path(MUPARSER_INCLUDE_DIR muParser.h REQUIRED)
 find_library(MUPARSER_LIBRARY NAMES muparser REQUIRED)
 
-add_executable(parametric-3d-visualiser
+add_executable(parametric-surface-visualiser
     src/main.cpp
 )
 
-target_include_directories(parametric-3d-visualiser PRIVATE
+target_include_directories(parametric-surface-visualiser PRIVATE
     ${MUPARSER_INCLUDE_DIR}
 )
 
-target_link_libraries(parametric-3d-visualiser PRIVATE
+target_link_libraries(parametric-surface-visualiser PRIVATE
     glm::glm
     ${MUPARSER_LIBRARY}
     /usr/local/lib/libraylib.a
