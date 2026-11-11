@@ -2,11 +2,10 @@
 #include "raylib.h"
 #include <vector>
 #include <iostream>
-#include <thread>
 #include <chrono>
 #include <numbers>
 #include <math.h>
-#include <regex>
+#include <cmath>
 #include <sstream>
 #include <utility>
 #include <stdexcept>
@@ -22,38 +21,12 @@ std::pair<float,float> extractBounds(const std::string& range) {
             return {a, b};
         }
     }
-    throw std::invalid_argument("Invalid range format. Please use [a,b] where a < b.");
+    throw std::invalid_argument("");
 
 }
 
 int main() {
     //Get user info
-    std::string XofTL;
-    std::cout << "Please insert your parametrisations as a function of t and l below:" << std::endl;
-    std::cout << "x(t,l) = ... " << std::endl;
-    std::cin >> XofTL;
-
-    std::string YofTL;
-    std::cout << "y(t,l) = ... " << std::endl;
-    std::cin >> YofTL;
-
-    std::string ZofTL;
-    std::cout << "z(t,l) = ... " << std::endl;
-    std::cin >> ZofTL;
-
-    std::cout << "" << std::endl;
-
-    std::string tRange;
-    std::cout << "Please insert your parameter ranges in the desired format below:" << std::endl;
-    std::cout << "for t" << std::endl;
-    std::cout << "[a,b] = ... " << std::endl;
-    std::cin >> tRange;
-
-    std::string lRange;
-    std::cout << "for l" << std::endl;
-    std::cout << "[a,b] = ... " << std::endl;
-    std::cin >> lRange;
-
     mu::Parser parserX;
     mu::Parser parserY;
     mu::Parser parserZ;
@@ -68,9 +41,143 @@ int main() {
     parserZ.DefineVar("t", &mu_t);
     parserZ.DefineVar("l", &mu_l);
 
-    parserX.SetExpr(XofTL);
-    parserY.SetExpr(YofTL);
-    parserZ.SetExpr(ZofTL);
+    std::string tRange;
+    while (true) {
+        std::cout << "Please insert your parameter ranges in the desired format below:" << std::endl;
+        std::cout << "for t" << std::endl;
+        std::cout << "[a,b] = ... " << std::endl;
+        std::getline(std::cin, tRange);
+        try {
+            extractBounds(tRange); // Test extraction to catch errors
+            break; // Exit loop if no exception is thrown
+        }
+        catch (const std::invalid_argument& error) {
+            std::cerr << "Error in t range: " << error.what() << std::endl;
+            std::cerr << "Ensure that a < b and both are floats." << std::endl;
+        }
+    }
+
+    std::string lRange;
+    while (true) {
+        std::cout << "Please insert your parameter ranges in the desired format below:" << std::endl;
+        std::cout << "for l" << std::endl;
+        std::cout << "[a,b] = ... " << std::endl;
+        std::getline(std::cin, lRange);
+        try {
+            extractBounds(lRange); // Test extraction to catch errors
+            break; // Exit loop if no exception is thrown
+        }
+        catch (const std::invalid_argument& error) {
+            std::cerr << "Error in l range: " << error.what() << std::endl;
+            std::cerr << "Ensure that a < b and both are floats." << std::endl;
+        }
+    }
+
+    float tMax = extractBounds(tRange).second;
+    float tMin = extractBounds(tRange).first;
+    float lMax = extractBounds(lRange).second;
+    float lMin = extractBounds(lRange).first;
+
+    std::cout << "" << std::endl;
+
+    std::string XofTL;
+    while (true) {
+        std::cout << "Please insert your parametrisations as a function of t and l below:" << std::endl;
+        std::cout << "x(t,l) = ... " << std::endl;
+        std::getline(std::cin, XofTL);
+        try {
+            parserX.SetExpr(XofTL);
+            int steps = 100;
+            for (int i = 0; i<=steps; i++) {
+
+                for (int j = 0; j<=steps; j++) {
+
+                    mu_t = tMin + (tMax - tMin) * i / steps;
+                    mu_l = lMin + (lMax - lMin) * j / steps;
+
+                    if (std::isnan(parserX.Eval())) {
+                        throw std::runtime_error("Evaluation resulted in NaN");
+                    }
+                }
+
+            }
+            break; // Exit loop if no exception is thrown
+        }
+        catch (const std::runtime_error& error) {
+            std::cerr << "Evaluation error: " << error.what() << std::endl;
+            std::cerr << "Please input your parametrisation such that it is defined within the parameter ranges." << std::endl;
+        }
+        catch (mu::Parser::exception_type& error) {
+            std::cerr << "Syntax error: " << error.GetMsg() << std::endl;
+            std::cerr << "Please input your parametrisation using muParser expression syntax ( e.g. 2*cos(t) + sin(l) )." << std::endl;
+        }
+    }
+
+    std::string YofTL;
+    while (true) {
+        std::cout << "Please insert your parametrisations as a function of t and l below:" << std::endl;
+        std::cout << "y(t,l) = ... " << std::endl;
+        std::getline(std::cin, YofTL);
+        try {
+            parserY.SetExpr(YofTL);
+            int steps = 100;
+            for (int i = 0; i<=steps; i++) {
+
+                for (int j = 0; j<=steps; j++) {
+
+                    mu_t = tMin + (tMax - tMin) * i / steps;
+                    mu_l = lMin + (lMax - lMin) * j / steps;
+
+                    if (std::isnan(parserY.Eval())) {
+                        throw std::runtime_error("Evaluation resulted in NaN");
+                    }
+                }
+
+            }
+            break; // Exit loop if no exception is thrown
+        }
+        catch (const std::runtime_error& error) {
+            std::cerr << "Evaluation error: " << error.what() << std::endl;
+            std::cerr << "Please input your parametrisation such that it is defined within the parameter ranges." << std::endl;
+        }
+        catch (mu::Parser::exception_type& error) {
+            std::cerr << "Syntax errror: " << error.GetMsg() << std::endl;
+            std::cerr << "Please input your parametrisation using muParser expression syntax ( e.g. 2*cos(t) + sin(l) )." << std::endl;
+        }   
+    }
+
+    std::string ZofTL;
+    while (true) {
+        std::cout << "Please insert your parametrisations as a function of t and l below:" << std::endl;
+        std::cout << "z(t,l) = ... " << std::endl;
+        std::getline(std::cin, ZofTL);
+        try {
+            parserZ.SetExpr(ZofTL);
+            int steps = 100;
+            for (int i = 0; i<=steps; i++) {
+
+                for (int j = 0; j<=steps; j++) {
+
+                    mu_t = tMin + (tMax - tMin) * i / steps;
+                    mu_l = lMin + (lMax - lMin) * j / steps;
+
+                    if (std::isnan(parserZ.Eval())) {
+                        throw std::runtime_error("Evaluation resulted in NaN");
+                    }
+                }
+
+            }
+            break; // Exit loop if no exception is thrown
+        }
+        catch (const std::runtime_error& error) {
+            std::cerr << "Evaluation error: " << error.what() << std::endl;
+            std::cerr << "Please input your parametrisation such that it is defined within the parameter ranges." << std::endl;
+        }
+        catch (mu::Parser::exception_type& error) {
+            std::cerr << "Syntax error: " << error.GetMsg() << std::endl;
+            std::cerr << "Please input your parametrisation using muParser expression syntax ( e.g. 2*cos(t) + sin(l) )." << std::endl;
+        }
+    }
 
     //Define Point Path, Time, Lime (uses glm::vec3 for glm calculations)
     glm::vec3 point = glm::vec3(0.0f, 0.0f, 0.0f);
@@ -78,10 +185,6 @@ int main() {
     bool TorL = true;
     bool increasing = true;
     bool firstRun = true;
-    float tMax = extractBounds(tRange).second;
-    float tMin = extractBounds(tRange).first;
-    float lMax = extractBounds(lRange).second;
-    float lMin = extractBounds(lRange).first;
     float t = tMin;
     float l = lMin;
     float tspeed = (tMax - tMin)/5; //1 seconds to go from min to max
@@ -114,9 +217,6 @@ int main() {
     if (tMin >= tMax || lMin >= lMax) {
         break;
     }
-    
-        //Get global time after frame update
-        auto now = std::chrono::steady_clock::now();
 
         //Check if switching between t and l is needed based on its value
         if (TorL == true) {
@@ -210,7 +310,7 @@ int main() {
 
                 DrawSphere(Vector3{point.x, point.y, point.z}, 0.01f, GRAY);
 
-                for(int i = 0; i < path.size() - 1; i++) {
+                for(size_t i = 0; i + 1 < path.size(); i++) {
                     DrawLine3D(Vector3{path[i].x, path[i].y, path[i].z}, Vector3{path[i+1].x, path[i+1].y, path[i+1].z}, RED);
                 }
 

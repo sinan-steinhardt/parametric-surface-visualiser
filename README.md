@@ -6,9 +6,9 @@ A real-time 3D path is traced along the parametric surface specified by the user
 
 Here is an example for the parametrisation
 
-x(t,l) = (2+cos(l))*cos(t)
+x(t,l) = (2 + cos(l))*cos(t)
 
-y(t,l) = (2+cos(l))*sin(t)
+y(t,l) = (2 + cos(l))*sin(t)
 
 z(t,l) = sin(l)*cos(t/2)
 
@@ -30,9 +30,11 @@ l ∈ [0,6.283185]
 
 - CMake
 - C++ compiler supporting C++20
-- [Raylib](https://www.raylib.com/)
+- [Raylib](https://www.raylib.com/) (static library)
 - [GLM](https://github.com/g-truc/glm)
 - [muParser](https://beltoforion.de/en/muparser/)
+
+Note: The current CMake configuration expects the static Raylib library at /usr/local/lib/libraylib.a. If Raylib is installed elsewhere, the path in CMakeLists.txt must be adjusted accordingly.
 
 ## Compilation
 
@@ -43,11 +45,13 @@ git clone https://github.com/sinan-steinhardt/parametric-surface-visualiser.git
 cd parametric-surface-visualiser
 ```
 
-Build the project:
+Build and run the project:
 
 ```bash
 cmake -S . -B build
 cmake --build build -j$(nproc)
+
+./build/parametric-surface-visualiser
 ```
 
 ## License
